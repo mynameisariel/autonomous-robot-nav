@@ -1,0 +1,23 @@
+[0.000000] (-) TimerEvent: {}
+[0.004829] (-) JobUnselected: {'identifier': 'aggregator'}
+[0.005121] (-) JobUnselected: {'identifier': 'aggregator'}
+[0.005179] (-) JobUnselected: {'identifier': 'bringup_robot'}
+[0.005211] (-) JobUnselected: {'identifier': 'control'}
+[0.005239] (-) JobUnselected: {'identifier': 'costmap'}
+[0.005264] (-) JobUnselected: {'identifier': 'gazebo'}
+[0.005289] (-) JobUnselected: {'identifier': 'odometry_spoof'}
+[0.005315] (-) JobUnselected: {'identifier': 'planner'}
+[0.005338] (-) JobUnselected: {'identifier': 'producer'}
+[0.005362] (-) JobUnselected: {'identifier': 'producer'}
+[0.005400] (-) JobUnselected: {'identifier': 'sample_msgs'}
+[0.005480] (-) JobUnselected: {'identifier': 'sample_msgs'}
+[0.005511] (-) JobUnselected: {'identifier': 'transformer'}
+[0.005536] (-) JobUnselected: {'identifier': 'transformer'}
+[0.005570] (map_memory) JobQueued: {'identifier': 'map_memory', 'dependencies': OrderedDict()}
+[0.005612] (map_memory) JobStarted: {'identifier': 'map_memory'}
+[0.100070] (-) TimerEvent: {}
+[0.208104] (-) TimerEvent: {}
+[0.272270] (map_memory) JobProgress: {'identifier': 'map_memory', 'progress': 'cmake'}
+[0.272450] (map_memory) StderrLine: {'line': b'Traceback (most recent call last):\n  File "/usr/lib/python3/dist-packages/colcon_core/executor/__init__.py", line 91, in __call__\n    rc = await self.task(*args, **kwargs)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_core/task/__init__.py", line 93, in __call__\n    return await task_method(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_ros/task/ament_cmake/build.py", line 59, in build\n    rc = await extension.build(\n         ^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_cmake/task/cmake/build.py", line 87, in build\n    rc = await self._reconfigure(args, env)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3/dist-packages/colcon_cmake/task/cmake/build.py", line 173, in _reconfigure\n    raise RuntimeError("Could not find \'cmake\' executable")\nRuntimeError: Could not find \'cmake\' executable\n'}
+[0.274243] (map_memory) JobEnded: {'identifier': 'map_memory', 'rc': 1}
+[0.285403] (-) EventReactorShutdown: {}

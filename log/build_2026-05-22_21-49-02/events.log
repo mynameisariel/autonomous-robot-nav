@@ -1,0 +1,17 @@
+[0.000000] (-) TimerEvent: {}
+[0.002038] (-) JobUnselected: {'identifier': 'aggregator'}
+[0.002158] (-) JobUnselected: {'identifier': 'aggregator'}
+[0.002209] (-) JobUnselected: {'identifier': 'bringup_robot'}
+[0.002312] (-) JobUnselected: {'identifier': 'control'}
+[0.002819] (-) JobUnselected: {'identifier': 'costmap'}
+[0.002861] (-) JobUnselected: {'identifier': 'gazebo'}
+[0.002918] (-) JobUnselected: {'identifier': 'map_memory'}
+[0.002937] (-) JobUnselected: {'identifier': 'odometry_spoof'}
+[0.002952] (-) JobUnselected: {'identifier': 'planner'}
+[0.002998] (-) JobUnselected: {'identifier': 'producer'}
+[0.003018] (-) JobUnselected: {'identifier': 'producer'}
+[0.003035] (-) JobUnselected: {'identifier': 'sample_msgs'}
+[0.003049] (-) JobUnselected: {'identifier': 'sample_msgs'}
+[0.003062] (-) JobUnselected: {'identifier': 'transformer'}
+[0.003082] (-) JobUnselected: {'identifier': 'transformer'}
+[0.004076] (-) EventReactorShutdown: {}
