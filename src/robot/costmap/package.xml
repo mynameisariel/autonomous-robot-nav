@@ -11,8 +11,10 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>
  
-  <!-- tell ROS2 package manager to install std_msgs library -->
+  <!-- tell ROS2 package manager to install msg libraries -->
   <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
  
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
