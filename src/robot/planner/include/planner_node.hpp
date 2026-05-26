@@ -13,43 +13,18 @@ class PlannerNode : public rclcpp::Node
 {
 public:
   PlannerNode();
-
-  // callbacks
   void mapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
   void goalCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg);
   void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg);
   void timerCallback();
 
-  // handlers
-  bool goalReached() const;
-  void planPath();
-
 private:
-  // states
-  enum class State
-  {
-    WAITING_FOR_GOAL,
-    WAITING_FOR_ROBOT_TO_REACH_GOAL
-  };
-  State state_;
-
   robot::PlannerCore planner_;
-
-  rclcpp::TimerBase::SharedPtr timer_;
-
-  // subscribers and publishers
   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr goal_point_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr goal_sub_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
-
-  // data storage
-  nav_msgs::msg::OccupancyGrid current_map_;
-  geometry_msgs::msg::PointStamped goal_;
-  geometry_msgs::msg::Pose robot_pose_;
-
-  bool goal_received_ = false;
-  bool map_received_ = false;
+  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 #endif

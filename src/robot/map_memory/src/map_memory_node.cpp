@@ -34,8 +34,8 @@ void MapMemoryNode::updateMap()
 
   auto grid = map_memory_.getGlobalMap();
   grid.header.stamp = this->get_clock()->now();
-  grid.header.frame_id = "robot"; // global frame
-  map_pub_->publish(grid);        // always publish
+  grid.header.frame_id = "sim_world"; // global frame
+  map_pub_->publish(grid);            // always publish
 }
 
 int main(int argc, char **argv)
