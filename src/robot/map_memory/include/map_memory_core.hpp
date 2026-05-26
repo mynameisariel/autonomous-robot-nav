@@ -22,14 +22,6 @@ namespace robot
     // called from timer (updateMap) - checks if robot has moved grreater than threshold distance since last merge
     bool tryMerge();
 
-    // main integration entry point
-    // TODO: Called by the node's updateMap() when the robot has moved 1.5 m.
-    //       Takes the latest costmap and the robot's current pose, fuses the
-    //       costmap into global_map_, and returns it for publishing.
-    // void integrateCostmap(
-    //     const nav_msgs::msg::OccupancyGrid &costmap,
-    //     const geometry_msgs::msg::Pose &robot_pose);
-
     // return copy of global map as OccupancyGrid message - called every timer tick
     nav_msgs::msg::OccupancyGrid getGlobalMap() const;
 
