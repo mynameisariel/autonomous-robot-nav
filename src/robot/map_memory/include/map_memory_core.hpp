@@ -4,6 +4,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "nav_msgs/msg/odometry.hpp"
+
 #include <cmath>
 
 namespace robot
@@ -14,43 +16,56 @@ namespace robot
   public:
     explicit MapMemoryCore(const rclcpp::Logger &logger);
 
-    // ── Main integration entry point ─────────────────────────────────────────
+    void updateCostmap(const nav_msgs::msg::OccupancyGrid &msg);
+    void updateOdometry(const nav_msgs::msg::Odometry &msg);
+
+    // called from timer (updateMap) - checks if robot has moved grreater than threshold distance since last merge
+    bool tryMerge();
+
+    // main integration entry point
     // TODO: Called by the node's updateMap() when the robot has moved 1.5 m.
     //       Takes the latest costmap and the robot's current pose, fuses the
     //       costmap into global_map_, and returns it for publishing.
-    void integrateCostmap(
-        const nav_msgs::msg::OccupancyGrid &costmap,
-        const geometry_msgs::msg::Pose &robot_pose);
+    // void integrateCostmap(
+    //     const nav_msgs::msg::OccupancyGrid &costmap,
+    //     const geometry_msgs::msg::Pose &robot_pose);
 
-    const nav_msgs::msg::OccupancyGrid getGlobalMap() const { return global_map_; };
+    // return copy of global map as OccupancyGrid message - called every timer tick
+    nav_msgs::msg::OccupancyGrid getGlobalMap() const;
 
   private:
     rclcpp::Logger logger_;
 
-    // TODO: Flag that tracks whether global_map_ has been initialised yet.
-    //       Set to true the first time integrateCostmap() is called.
-    nav_msgs::msg::OccupancyGrid global_map_;
-    bool map_initialized_ = false;
+    // global map storage
+    std::vector<int8_t> global_map_; // flat vector of int8_t of size width*height, intialized to -1
 
-    // ── Global map constants ─────────────────────────────────────────────────
-    // TODO: Choose a map size large enough to cover the expected environment.
-    //       At 0.05 m/cell, 2000 × 2000 cells = 100 m × 100 m.
-    static constexpr int GLOBAL_WIDTH = 2000;  // cells
-    static constexpr int GLOBAL_HEIGHT = 2000; // cells
-    static constexpr double RESOLUTION = 0.05; // metres per cell
+    // global math constants
+    const int width_ = 2000;
+    const int height_ = 2000;
+    const double resolution_ = 0.05;
+    const double origin_x_ = -(2000 * 0.05 / 2.0); // -50.0 m
+    const double origin_y_ = -(2000 * 0.05 / 2.0); // -50.0 m
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    // latest costmap (updateCostmpa)
+    nav_msgs::msg::OccupancyGrid latest_costmap_;
+    bool has_costmap_ = false;
 
-    // TODO: One-time setup for global_map_ on the very first integration call.
-    //       Sets width, height, resolution, and origin.
-    //       Fills the data vector with -1 (unknown) for every cell.
-    void initGlobalMap(nav_msgs::msg::OccupancyGrid &global_map);
+    // robot pose (updateOdometry)
+    double robot_x_ = 0.0;
+    double robot_y_ = 0.0;
+    double robot_yaw_ = 0.0;
 
-    // TODO: Convert a ROS quaternion to a yaw angle (radians).
-    //       Use: yaw = atan2( 2*(w*z + x*y), 1 - 2*(y^2 + z^2) )
-    double quaternionToYaw(const geometry_msgs::msg::Quaternion &q);
+    // distance tracing for robot position at time of most recent merge
+    double last_x_ = 0.0;
+    double last_y_ = 0.0;
+    bool has_last_ = false;
+
+    const double distance_threshold_ = 1.5; // metres
+
+    // Transforms every known cell in latest_costmap_ into the global frame and writes it into global_map_
+    void mergeLatestCostmap();
   };
 
-} // namespace robot
+}
 
 #endif

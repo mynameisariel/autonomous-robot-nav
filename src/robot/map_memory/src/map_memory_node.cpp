@@ -1,11 +1,7 @@
 #include "map_memory_node.hpp"
 
-// ── Constructor ──────────────────────────────────────────────────────────────
-MapMemoryNode::MapMemoryNode()
-    : Node("map_memory"),
-      map_memory_(robot::MapMemoryCore(this->get_logger())),
-      last_update_x_(0.0),
-      last_update_y_(0.0)
+// constructor
+MapMemoryNode::MapMemoryNode() : Node("map_memory"), map_memory_(robot::MapMemoryCore(this->get_logger()))
 {
   costmap_sub_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
       "/costmap", 10,
@@ -14,8 +10,6 @@ MapMemoryNode::MapMemoryNode()
       "/odom/filtered", 10,
       std::bind(&MapMemoryNode::odomCallback, this, std::placeholders::_1));
   map_pub_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/map", 10);
-
-  // Ttimer
   timer_ = this->create_wall_timer(
       std::chrono::seconds(1),
       std::bind(&MapMemoryNode::updateMap, this));
@@ -25,58 +19,69 @@ MapMemoryNode::MapMemoryNode()
 // costmap callback for costmap updates
 void MapMemoryNode::costmapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
 {
-  latest_costmap_ = *msg;
-  costmap_updated_ = true;
+  map_memory_.updateCostmap(*msg);
 }
 
-void MapMemoryNode::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
+void MapMemoryNode::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
-  // Save the robot's current pose so integrateCostmap() has it
-  current_pose_ = odom->pose.pose;
-
-  // Extract the current x and y position
-  double x = current_pose_.position.x;
-  double y = current_pose_.position.y;
-
-  // compute distance
-  double distance = std::sqrt(
-      std::pow(x - last_update_x_, 2) +
-      std::pow(y - last_update_y_, 2));
-
-  // record the new reference position and flag that a map update is due
-  if (distance >= distance_threshold_)
-  {
-    last_update_x_ = x;
-    last_update_y_ = y;
-    should_update_map_ = true;
-  }
+  map_memory_.updateOdometry(*msg);
 }
 
-// ── Timer callback ────────────────────────────────────────────────────────────
+// void MapMemoryNode::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
+// {
+//   // Save the robot's current pose so integrateCostmap() has it
+//   current_pose_ = odom->pose.pose;
 
+//   // Extract the current x and y position
+//   double x = current_pose_.position.x;
+//   double y = current_pose_.position.y;
+
+//   // compute distance
+//   double distance = std::sqrt(
+//       std::pow(x - last_update_x_, 2) +
+//       std::pow(y - last_update_y_, 2));
+
+//   // record the new reference position and flag that a map update is due
+//   if (distance >= distance_threshold_)
+//   {
+//     last_update_x_ = x;
+//     last_update_y_ = y;
+//     should_update_map_ = true;
+//   }
+// }
+
+// timer callback
 void MapMemoryNode::updateMap()
 {
-  // TODO: Only integrate and publish when:
-  //         (a) the robot has moved far enough (should_update_map_), AND
-  //         (b) at least one costmap has arrived (costmap_updated_)
-  if (!should_update_map_ || !costmap_updated_)
-  {
-    return;
-  }
+  map_memory_.tryMerge(); // try but don't care ab return value
 
-  // TODO: Delegate the actual grid fusion to MapMemoryCore
-  //       Pass: latest_costmap_, current_pose_, and a reference to global_map_
-  //       (You will need to add global_map_ as a member of this node or of the core)
-  map_memory_.integrateCostmap(latest_costmap_, current_pose_);
-
-  // TODO: Publish the updated global map
-  map_pub_->publish(map_memory_.getGlobalMap());
-
-  // TODO: Reset the flag so we don't publish again until the robot moves another 1.5 m
-  should_update_map_ = false;
+  auto grid = map_memory_.getGlobalMap();
+  grid.header.stamp = this->get_clock()->now();
+  grid.header.frame_id = "robot"; // global frame
+  map_pub_->publish(grid);        // always publish
 }
 
-// ── Entry point ───────────────────────────────────────────────────────────────
+// void MapMemoryNode::updateMap()
+// {
+//   // TODO: Only integrate and publish when:
+//   //         (a) the robot has moved far enough (should_update_map_), AND
+//   //         (b) at least one costmap has arrived (costmap_updated_)
+//   if (!should_update_map_ || !costmap_updated_)
+//   {
+//     return;
+//   }
+
+//   // TODO: Delegate the actual grid fusion to MapMemoryCore
+//   //       Pass: latest_costmap_, current_pose_, and a reference to global_map_
+//   //       (You will need to add global_map_ as a member of this node or of the core)
+//   map_memory_.integrateCostmap(latest_costmap_, current_pose_);
+
+//   // publish the updated global map
+//   map_pub_->publish(map_memory_.getGlobalMap());
+
+//   // reset the flag so we don't publish again until the robot moves another 1.5 m
+//   should_update_map_ = false;
+// }
 
 int main(int argc, char **argv)
 {
